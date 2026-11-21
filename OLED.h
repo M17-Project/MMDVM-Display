@@ -71,6 +71,9 @@ protected:
 	virtual void writeNXDNInt(const std::string& source, bool group, unsigned int dest, const std::string& type) override;
 	virtual void clearNXDNInt() override;
 
+	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type) override;
+	virtual void clearM17Int() override;
+
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message) override;
 	virtual void clearPOCSAGInt() override;
 

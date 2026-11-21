@@ -91,6 +91,7 @@ enum class LcdColour : unsigned char {
 #define STR_DSTAR		"D-STAR"
 #define STR_MMDVM		"MMDVM"
 #define STR_NXDN		"NXDN"
+#define STR_M17			"M17"
 #define STR_P25			"P25"
 #define STR_YSF			"SystemFusion"
 #define	STR_FM			"FM"
@@ -304,6 +305,25 @@ void CTFTSurenoo::writeNXDNInt(const std::string& source, bool group, unsigned i
 }
 
 void CTFTSurenoo::clearNXDNInt()
+{
+	clearDStarInt();
+}
+
+void CTFTSurenoo::writeM17Int(const std::string& source, const std::string& dest, const std::string& type)
+{
+	if (m_mode != MODE_M17)
+		setModeLine(STR_M17);
+
+	::snprintf(m_temp, sizeof(m_temp), "%s %s", type.c_str(), source.c_str());
+	setStatusLine(statusLineNo(0), m_temp);
+
+	::snprintf(m_temp, sizeof(m_temp), "%s", dest.c_str());
+	setStatusLine(statusLineNo(1), m_temp);
+
+	m_mode = MODE_M17;
+}
+
+void CTFTSurenoo::clearM17Int()
 {
 	clearDStarInt();
 }

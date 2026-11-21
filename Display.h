@@ -86,6 +86,12 @@ public:
 	void writeNXDNBER(float ber);
 	void clearNXDN();
 
+	void writeM17(const std::string& source, const std::string& dest, const std::string& type);
+	void writeM17RSSI(int rssi);
+	void writeM17BER(float ber);
+	void writeM17Text(const std::string& text);
+	void clearM17();
+
 	void writePOCSAG(uint32_t ric, const std::string& message);
 	void clearPOCSAG();
 
@@ -142,6 +148,12 @@ protected:
 	virtual void writeNXDNRSSIInt(int rssi);
 	virtual void writeNXDNBERInt(float ber);
 	virtual void clearNXDNInt() = 0;
+
+	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type) = 0;
+	virtual void writeM17RSSIInt(int rssi);
+	virtual void writeM17BERInt(float ber);
+	virtual void writeM17TextInt(const std::string& text);
+	virtual void clearM17Int() = 0;
 
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message) = 0;
 	virtual void clearPOCSAGInt() = 0;

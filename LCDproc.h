@@ -67,6 +67,10 @@ protected:
 	virtual void writeNXDNRSSIInt(int rssi) override;
 	virtual void clearNXDNInt() override;
 
+	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type) override;
+	virtual void writeM17RSSIInt(int rssi) override;
+	virtual void clearM17Int() override;
+
 	virtual void writeFMInt(const std::string& state) override;
 	virtual void writeFMRSSIInt(int rssi) override;
 	virtual void clearFMInt() override;

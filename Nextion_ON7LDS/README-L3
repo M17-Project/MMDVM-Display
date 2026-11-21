@@ -95,6 +95,7 @@ was sent to the display.
  5 : page P25 
  6 : page NXDN
  7 : page POCSAG
+ 8 : page M17
 
 MMDVMHOST
 11 : IDLE
@@ -162,6 +163,14 @@ POCSAG
 132 : RIC
 133 : message text
 134 : waiting
+
+M17
+141 : M17 listening
+142 : source
+143 : dest
+144 : RSSI
+145 : ber
+146 : text
 
 Fields (and their numbers) on the pages, used by MMDVMHost
 ----------------------------------------------------------
@@ -233,3 +242,10 @@ t3 : ber
 POCSAG
 t0 : waiting / RIC
 t1 : message
+
+M17
+t0 : source
+t1 : dst
+t2 : rssi
+t3 : ber
+t4 : text
