@@ -186,6 +186,7 @@ void CLCDproc::setIdleInt()
 		socketPrintf(m_socketfd, "screen_set YSF -priority hidden");
 		socketPrintf(m_socketfd, "screen_set P25 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set NXDN -priority hidden");
+		socketPrintf(m_socketfd, "screen_set M17 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set FM -priority hidden");
 		socketPrintf(m_socketfd, "widget_set Status Status %u %u Idle", m_cols - 3, m_rows);
 		socketPrintf(m_socketfd, "output 0");   // Clear all LEDs
@@ -204,6 +205,7 @@ void CLCDproc::setErrorInt()
 		socketPrintf(m_socketfd, "screen_set YSF -priority hidden");
 		socketPrintf(m_socketfd, "screen_set P25 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set NXDN -priority hidden");
+		socketPrintf(m_socketfd, "screen_set M17 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set FM -priority hidden");
 		socketPrintf(m_socketfd, "widget_set Status Status %u %u Error", m_cols - 4, m_rows);
 		socketPrintf(m_socketfd, "output 0");   // Clear all LEDs
@@ -222,6 +224,7 @@ void CLCDproc::setLockoutInt()
 		socketPrintf(m_socketfd, "screen_set YSF -priority hidden");
 		socketPrintf(m_socketfd, "screen_set P25 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set NXDN -priority hidden");
+		socketPrintf(m_socketfd, "screen_set M17 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set FM -priority hidden");
 		socketPrintf(m_socketfd, "widget_set Status Status %u %u Lockout", m_cols - 6, m_rows);
 		socketPrintf(m_socketfd, "output 0");   // Clear all LEDs
@@ -242,6 +245,7 @@ void CLCDproc::setQuitInt()
 		socketPrintf(m_socketfd, "screen_set YSF -priority hidden");
 		socketPrintf(m_socketfd, "screen_set P25 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set NXDN -priority hidden");
+		socketPrintf(m_socketfd, "screen_set M17 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set FM -priority hidden");
 		socketPrintf(m_socketfd, "widget_set Status Status %u %u Stopped", m_cols - 6, m_rows);
 		socketPrintf(m_socketfd, "output 0");   // Clear all LEDs
@@ -477,6 +481,39 @@ void CLCDproc::clearNXDNInt()
 	socketPrintf(m_socketfd, "widget_set NXDN Line2 1 2 15 2 h 3 \"Listening\"");
 	socketPrintf(m_socketfd, "widget_set NXDN Line3 1 3 15 3 h 3 \"\"");
 	socketPrintf(m_socketfd, "widget_set NXDN Line4 1 4 15 4 h 3 \"\"");
+	socketPrintf(m_socketfd, "output 16"); // Set LED5 color green
+}
+
+void CLCDproc::writeM17Int(const std::string& source, const std::string& dest, const std::string& type)
+{
+	m_clockDisplayTimer.stop();           // Stop the clock display
+
+	socketPrintf(m_socketfd, "screen_set M17 -priority foreground");
+	socketPrintf(m_socketfd, "widget_set M17 Mode 1 1 M17");
+
+	if (m_rows == 2U) {
+		socketPrintf(m_socketfd, "widget_set M17 Line2 1 2 15 2 h 3 \"%.9s > %.9s\"", source.c_str(), dest.c_str());
+	} else {
+		socketPrintf(m_socketfd, "widget_set M17 Line2 1 2 15 2 h 3 \"%.9s >\"", source.c_str());
+		socketPrintf(m_socketfd, "widget_set M17 Line3 1 3 15 3 h 3 \"%.9s\"", dest.c_str());
+		socketPrintf(m_socketfd, "output 255"); // Set LED5 color red
+	}
+
+	m_dmr = false;
+}
+
+void CLCDproc::writeM17RSSIInt(int rssi)
+{
+	socketPrintf(m_socketfd, "widget_set M17 Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
+}
+
+void CLCDproc::clearM17Int()
+{
+	m_clockDisplayTimer.stop();           // Stop the clock display
+
+	socketPrintf(m_socketfd, "widget_set M17 Line2 1 2 15 2 h 3 \"Listening\"");
+	socketPrintf(m_socketfd, "widget_set M17 Line3 1 3 15 3 h 3 \"\"");
+	socketPrintf(m_socketfd, "widget_set M17 Line4 1 4 15 4 h 3 \"\"");
 	socketPrintf(m_socketfd, "output 16"); // Set LED5 color green
 }
 
@@ -835,6 +872,16 @@ void CLCDproc::defineScreens()
 	socketPrintf(m_socketfd, "widget_set NXDN Line3 3 1 15 1 h 3 \" \"");
 	socketPrintf(m_socketfd, "widget_set NXDN Line4 4 2 15 2 h 3 \" \"");
 */
+
+	// The M17 Screen
+
+	socketPrintf(m_socketfd, "screen_add M17");
+	socketPrintf(m_socketfd, "screen_set M17 -name M17 -heartbeat on -priority hidden -backlight on");
+
+	socketPrintf(m_socketfd, "widget_add M17 Mode string");
+	socketPrintf(m_socketfd, "widget_add M17 Line2 scroller");
+	socketPrintf(m_socketfd, "widget_add M17 Line3 scroller");
+	socketPrintf(m_socketfd, "widget_add M17 Line4 scroller");
 
 	// The FM Screen
 

@@ -72,6 +72,7 @@ private:
 	void parseYSF(const nlohmann::json& json);
 	void parseP25(const nlohmann::json& json);
 	void parseNXDN(const nlohmann::json& json);
+	void parseM17(const nlohmann::json& json);
 	void parsePOCSAG(const nlohmann::json& json);
 	void parseFM(const nlohmann::json& json);
 

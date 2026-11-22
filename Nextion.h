@@ -85,6 +85,12 @@ protected:
 	virtual void writeNXDNBERInt(float ber) override;
 	virtual void clearNXDNInt() override;
 
+	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type) override;
+	virtual void writeM17RSSIInt(int rssi) override;
+	virtual void writeM17BERInt(float ber) override;
+	virtual void writeM17TextInt(const std::string& text) override;
+	virtual void clearM17Int() override;
+
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message) override;
 	virtual void clearPOCSAGInt() override;
 

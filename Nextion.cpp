@@ -774,6 +774,67 @@ void CNextion::clearNXDNInt()
 	sendCommand("t3.txt=\"\"");
 }
 
+void CNextion::writeM17Int(const std::string& source, const std::string& dest, const std::string& type)
+{
+	if (m_mode != MODE_M17) {
+		sendCommand("page M17");
+		sendCommandAction(8U);
+	}
+
+	char text[30U];
+	if (m_brightness > 0) {
+		::sprintf(text, "dim=%u", m_brightness);
+		sendCommand(text);
+	}
+
+	::sprintf(text, "t0.txt=\"%s %.10s\"", type.c_str(), source.c_str());
+	sendCommand(text);
+	sendCommandAction(142U);
+
+	::sprintf(text, "t1.txt=\"%s\"", dest.c_str());
+	sendCommand(text);
+	sendCommandAction(143U);
+
+	m_clockDisplayTimer.stop();
+
+	m_mode = MODE_M17;
+}
+
+void CNextion::writeM17RSSIInt(int rssi)
+{
+	char text[25U];
+	::sprintf(text, "t2.txt=\"%ddBm\"", rssi);
+	sendCommand(text);
+	sendCommandAction(144U);
+}
+
+void CNextion::writeM17BERInt(float ber)
+{
+	char text[25U];
+	::sprintf(text, "t3.txt=\"%.1f%%\"", ber);
+	sendCommand(text);
+	sendCommandAction(145U);
+}
+
+void CNextion::writeM17TextInt(const std::string& text)
+{
+	char buffer[105U];
+	::sprintf(buffer, "t4.txt=\"%s\"", text.c_str());
+
+	sendCommand(buffer);
+	sendCommandAction(146U);
+}
+
+void CNextion::clearM17Int()
+{
+	sendCommand("t0.txt=\"Listening\"");
+	sendCommandAction(141U);
+	sendCommand("t1.txt=\"\"");
+	sendCommand("t2.txt=\"\"");
+	sendCommand("t3.txt=\"\"");
+	sendCommand("t4.txt=\"\"");
+}
+
 void CNextion::writeFMInt(const std::string& status)
 {
 	if (m_mode != MODE_FM) {
@@ -1369,6 +1430,7 @@ void CNextion::callStatus(unsigned int status)
 	case 102U:	// P25
 	case 122U:	// NXDN
 	case 132U:	// POCSAG
+	case 142U:	// M17
 		m_heard[m_page].push_front(m_fields[m_page]);
 		if (m_heard[m_page].size() > LAST_HEARD)
 			m_heard[m_page].pop_back();
@@ -1384,6 +1446,7 @@ void CNextion::callStatus(unsigned int status)
 	case 101U:
 	case 121U:
 	case 134U:
+	case 141U:
 		m_inCall[m_page] = false;
 		break;
 	default:

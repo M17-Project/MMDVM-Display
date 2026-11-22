@@ -60,6 +60,12 @@ const char* DEFAULT_INI_FILE = "MMDVM-Display.ini";
 const char* DEFAULT_INI_FILE = "/etc/MMDVM-Display.ini";
 #endif
 
+static std::string trimRight(const std::string& text)
+{
+	std::string::size_type end = text.find_last_not_of(' ');
+	return (end == std::string::npos) ? std::string() : text.substr(0U, end + 1U);
+}
+
 static bool m_killed = false;
 static int  m_signal = 0;
 static bool m_reload = false;
@@ -600,6 +606,12 @@ void CMMDVMDisplay::readHost(const std::string& text)
 			return;
 		}
 
+		if (j.contains("M17") && j["M17"].is_object()) {
+			LogDebug("Identified as an M17 message");
+			parseM17(j["M17"]);
+			return;
+		}
+
 		if (j.contains("FM") && j["FM"].is_object()) {
 			LogDebug("Identified as an FM message");
 			parseFM(j["FM"]);
@@ -704,6 +716,8 @@ void CMMDVMDisplay::parseRSSI(const nlohmann::json& json)
 			m_display->writeP25RSSI(value);
 		} else if (mode == "NXDN") {
 			m_display->writeNXDNRSSI(value);
+		} else if (mode == "M17") {
+			m_display->writeM17RSSI(value);
 		} else if (mode == "FM") {
 			m_display->writeFMRSSI(value);
 		}
@@ -737,6 +751,8 @@ void CMMDVMDisplay::parseBER(const nlohmann::json& json)
 			m_display->writeP25BER(value);
 		} else if (mode == "NXDN") {
 			m_display->writeNXDNBER(value);
+		} else if (mode == "M17") {
+			m_display->writeM17BER(value);
 		}
 	}
 	catch (nlohmann::json::exception& ex) {
@@ -762,6 +778,9 @@ void CMMDVMDisplay::parseText(const nlohmann::json& json)
 			int slot          = json["slot"];
 			std::string value = json["value"];
 			m_display->writeDMRTA(slot, value);
+		} else if (mode == "M17") {
+			std::string value = json["value"];
+			m_display->writeM17Text(value);
 		}
 	}
 	catch (nlohmann::json::exception& ex) {
@@ -952,6 +971,35 @@ void CMMDVMDisplay::parsePOCSAG(const nlohmann::json& json)
 	}
 	catch (nlohmann::json::exception& ex) {
 		LogError("Error parsing POCSAG - %s", ex.what());
+	}
+}
+
+void CMMDVMDisplay::parseM17(const nlohmann::json& json)
+{
+	assert(m_display != nullptr);
+
+	try {
+		if (!json.contains("action"))
+			return;
+
+		std::string action = json["action"];
+		if (action == "start" || action == "late_entry") {
+			if (!json.contains("src_callsign") || !json.contains("dst_callsign") ||
+			    !json.contains("source"))
+				return;
+
+			// MMDVM-Host pads M17 callsigns to nine characters
+			std::string src_callsign = trimRight(json["src_callsign"]);
+			std::string dst_callsign = trimRight(json["dst_callsign"]);
+			std::string source       = json["source"] == "rf" ? "R" : "N";
+
+			m_display->writeM17(src_callsign, dst_callsign, source);
+		} else if (action == "end" || action == "lost") {
+			m_display->clearM17();
+		}
+	}
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing M17 - %s", ex.what());
 	}
 }
 

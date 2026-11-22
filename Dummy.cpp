@@ -105,6 +105,16 @@ void CDummy::clearNXDNInt()
 	LogDebug("Dummy: clearNXDNInt called");
 }
 
+void CDummy::writeM17Int(const std::string& source, const std::string& dest, const std::string& type)
+{
+	LogDebug("Dummy: writeM17Int called, source=%s, dest=%s, type=%s", source.c_str(), dest.c_str(), type.c_str());
+}
+
+void CDummy::clearM17Int()
+{
+	LogDebug("Dummy: clearM17Int called");
+}
+
 void CDummy::writePOCSAGInt(uint32_t ric, const std::string& message)
 {
 	LogDebug("Dummy: writePOCSAGInt called, ric=%u, message=\"%s\"", ric, message.c_str());
